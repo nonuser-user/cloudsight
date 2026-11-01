@@ -42,7 +42,7 @@ The demo badge on every analytics page makes it clear the data is synthetic.
 
 ---
 
-## Full setup — Live MySQL + Cloudflare R2
+## Full setup — Live MySQL
 
 ### 1 — Copy and fill in .env
 
@@ -105,19 +105,6 @@ python app.py
 
 Sign in with the seeded credentials. The UI automatically switches from sample
 data to live MySQL data — the **"Live · MySQL connected"** badge confirms it.
-
----
-
-## Cloudflare R2 setup
-
-1. In the Cloudflare dashboard → **R2 → Create bucket** → name it `cloudsight-prod`.
-2. Go to **R2 → Manage R2 API Tokens** → create a token with **Object Read & Write**.
-3. Note the **Account ID**, **Access Key ID**, **Secret Access Key**, and the
-   endpoint URL (`https://<account_id>.r2.cloudflarestorage.com`).
-4. Add them to `.env` under `R2_*`.
-
-The R2 bucket is used for actual file bytes; MySQL stores only metadata
-(name, size, type, directory, status). Files upload via the File Manager page.
 
 ---
 
