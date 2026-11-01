@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard · CloudSight{% endblock %}
+
+{% block content %}
+  <!-- Page head -->
+  <div class="page-head">
+    <div>
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        <h1 class="page-head__title">Storage Analytics Dashboard</h1>
+        <span class="sample-flag">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+          Sample data
+        </span>
+      </div>
+      <p class="page-head__subtitle">Welcome back, {{ sample_user.name.split(' ')[0] }} — here's your cloud storage at a glance.</p>
+    </div>
+    <div class="page-head__actions">
+      <button class="btn btn-outline-secondary btn-ico" onclick="window.CloudSightToast('Refreshing','Pulling the latest storage metrics from R2…','brand')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></svg>
+        Refresh
+      </button>
+      <a href="{{ url_for('files') }}" class="btn btn-primary btn-ico">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="M6 10l6-6 6 6"/><path d="M4 20h16"/></svg>
+        Upload
+      </a>
+    </div>
+  </div>
+
+  <!-- KPI row -->
+  <div class="row g-3 g-xxl-4 row-gap" data-kpis></div>
+
+  <!-- Charts row 1: growth + donut -->
+  <div class="row g-3 g-xxl-4 row-gap mt-1">
+    <div class="col-12 col-xxl-8">
+      <div class="card h-100">
+        <div class="card__head">
+          <div class="card__title-row">
+            <span class="card__title-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l3-4 3 3 4-6"/></svg></span>
+            <span class="card__title">Storage Growth — 24 Months</span>
+          </div>
+          <span class="badge-soft badge-soft--neutral"><i class="bi bi-calendar3"></i> Oct 2024 – Oct 2026</span>
+        </div>
+        <div class="card__body">
+          <div id="growthChart" class="chart-box chart-box--md" data-chart></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-xxl-4">
+      <div class="card h-100">
+        <div class="card__head">
+          <div class="card__title-row">
+            <span class="card__title-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9"/><path d="M21 3v6h-6"/></svg></span>
+            <span class="card__title">Storage Usage by Type</span>
+          </div>
+        </div>
+        <div class="card__body">
+          <div id="storageDonutChart" class="chart-box" style="height:240px" data-chart></div>
+          <hr class="divider my-3">
+          <div data-type-legend></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts row 2: forecast + file-type distribution -->
+  <div class="row g-3 g-xxl-4 row-gap mt-1">
+    <div class="col-12 col-xxl-8">
+      <div class="card h-100">
+        <div class="card__head">
+          <div class="card__title-row">
+            <span class="card__title-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l4-5 3 3 5-7 6 8"/><path d="M3 21h18"/></svg></span>
+            <span class="card__title">Linear Regression Forecast</span>
+          </div>
+          <a href="{{ url_for('prediction') }}" class="btn btn-ghost btn-sm btn-ico">Full analysis
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </a>
+        </div>
+        <div class="card__body">
+          <div id="forecastChart" class="chart-box chart-box--lg" data-chart></div>
+          <div class="d-flex flex-wrap gap-2 mt-3">
+            <span class="badge-soft badge-soft--brand">scikit-learn · LinearRegression</span>
+            <span class="badge-soft badge-soft--success">R² = 0.974</span>
+            <span class="badge-soft badge-soft--warning">Capacity 500 GB reached ~ Apr 2027</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-xxl-4">
+      <div class="card h-100">
+        <div class="card__head">
+          <div class="card__title-row">
+            <span class="card__title-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="6" width="4" height="15" rx="1"/><rect x="17" y="9" width="4" height="12" rx="1"/></svg></span>
+            <span class="card__title">File-type Distribution</span>
+          </div>
+        </div>
+        <div class="card__body">
+          <div id="typeDistChart" class="chart-box chart-box--md" data-chart></div>
+          <div data-storage-bar class="mt-3"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent files + largest files -->
+  <div class="row g-3 g-xxl-4 row-gap mt-1">
+    <div class="col-12 col-xxl-8">
+      <div class="card h-100">
+        <div class="card__head">
+          <div class="card__title-row">
+            <span class="card__title-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></span>
+            <span class="card__title">Recent Files</span>
+          </div>
+          <a href="{{ url_for('files') }}" class="btn btn-ghost btn-sm btn-ico">View all
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </a>
+        </div>
+        <div class="card__body card__body--flush">
+          <div class="table-responsive">
+            <table class="tbl">
+              <thead>
+                <tr><th>Name</th><th>Size</th><th>Modified</th><th class="text-end">Actions</th></tr>
+              </thead>
+              <tbody data-recent-files></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-xxl-4">
+      <div class="card h-100">
+        <div class="card__head">
+          <div class="card__title-row">
+            <span class="card__title-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M5 9l7-7 7 7"/><path d="M5 15l7 7 7-7"/></svg></span>
+            <span class="card__title">Largest Files</span>
+          </div>
+        </div>
+        <div class="card__body card__body--flush">
+          <div data-largest-files></div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      // Wait one tick so renderers from main.js have created container sizing
+      requestAnimationFrame(function () {
+        if (window.CloudSightCharts) {
+          CloudSightCharts.growthArea("growthChart", { height: 320 });
+          CloudSightCharts.storageDonut("storageDonutChart");
+          CloudSightCharts.forecastChart("forecastChart", { height: 380 });
+          CloudSightCharts.usageByTypeBars("typeDistChart", { height: 260 });
+        }
+      });
+    });
+  </script>
+{% endblock %}

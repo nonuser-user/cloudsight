@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Page not found · CloudSight{% endblock %}
+{% block content %}
+  <div class="empty" style="min-height:60vh">
+    <div class="empty__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/><path d="M8 11h6"/></svg></div>
+    <div class="empty__title">Page not found</div>
+    <div class="empty__text">The page you're looking for may have been moved or doesn't exist in CloudSight.</div>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-ico mt-2">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l9-4 9 4-9 4-9-4z"/></svg>
+      Back to dashboard
+    </a>
+  </div>
+{% endblock %}

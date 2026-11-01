@@ -1,0 +1,297 @@
+{% extends "base.html" %}
+{% block title %}File Manager · CloudSight{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1 class="page-head__title">Cloud File Manager</h1>
+    <p class="page-head__subtitle">Browse, upload and manage your files.</p>
+  </div>
+  <div class="page-head__actions">
+    <button class="btn btn-outline-secondary btn-ico"
+            onclick="CloudSightToast('New folder','Coming soon.','brand')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 7a2 2 0 0 1 2-2h4l2 2h6a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7z"/>
+        <path d="M12 11v6M9 14h6"/>
+      </svg>
+      New folder
+    </button>
+    <label class="btn btn-primary btn-ico mb-0"
+           style="cursor:pointer;position:relative;overflow:hidden">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 16V4"/><path d="M6 10l6-6 6 6"/><path d="M4 20h16"/>
+      </svg>
+      Upload
+      <input type="file" id="filePickerInput" multiple
+             style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer">
+    </label>
+  </div>
+</div>
+
+<!-- upload progress bar, hidden until a file is picked -->
+<div id="uploadBar" style="display:none" class="card mb-3">
+  <div class="card__body d-flex align-items-center gap-3">
+    <div class="flex-grow-1">
+      <div id="uploadBarLabel"
+           style="font-size:13.5px;font-weight:600;color:var(--text-strong)">
+        Uploading…
+      </div>
+      <div class="progress-soft mt-1" style="height:7px">
+        <div id="uploadBarProgress" class="progress-soft__bar bar--brand"
+             style="width:0%"></div>
+      </div>
+    </div>
+    <span id="uploadBarPct"
+          style="font-size:13px;font-weight:600;color:var(--brand-600);white-space:nowrap">
+      0%
+    </span>
+  </div>
+</div>
+
+<div class="row g-3 g-xxl-4 row-gap">
+
+  <!-- sidebar -->
+  <div class="col-12 col-lg-3">
+    <div class="card h-100">
+      <div class="card__head">
+        <span class="card__title">Folders</span>
+        <span class="badge-soft badge-soft--neutral" id="folderCount">—</span>
+      </div>
+      <div class="card__body card__body--flush" style="padding:8px">
+        <div id="folderList" class="list-group list-group-flush">
+          <!-- filled by JS -->
+          <div class="empty" style="padding:24px 12px">
+            <div class="spinner-soft mx-auto"></div>
+          </div>
+        </div>
+        <hr class="divider mx-3 my-2">
+        <div style="padding:4px 12px 8px">
+          <div class="section-title mb-2">Storage</div>
+          <div data-storage-bar></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- main panel -->
+  <div class="col-12 col-lg-9">
+    <div class="card h-100">
+      <div class="card__head flex-wrap" style="gap:12px">
+        <div class="crumbs">
+          <span>My storage</span>
+          <span class="sep">/</span>
+          <span class="current" id="currentFolder">All files</span>
+        </div>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <div class="topbar__search" style="flex:0 1 220px;max-width:220px">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+              <circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>
+            </svg>
+            <input type="text" id="fileSearch" placeholder="Search files…"
+                   style="height:38px;font-size:13px">
+          </div>
+          <div class="segment" id="viewToggle">
+            <button class="active" data-value="grid" title="Grid view">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
+                <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+                <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+                <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+                <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+              </svg>
+            </button>
+            <button data-value="list" title="List view">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
+                <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card__body">
+        <div id="gridView"
+             class="row g-3 row-cols-2 row-cols-sm-3 row-cols-xl-4"
+             data-fm-grid></div>
+        <div id="listView" class="d-none">
+          <div class="table-responsive">
+            <table class="tbl">
+              <thead>
+                <tr>
+                  <th>Name</th><th>Size</th><th>Modified</th>
+                  <th>Owner</th><th>Status</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody data-fm-list></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="card__foot d-flex align-items-center justify-content-between">
+        <span id="fileCountLabel" class="text-muted-2" style="font-size:13px">
+          Loading…
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+window.addEventListener("load", function () {
+
+  /* view toggle */
+  var grid = document.getElementById("gridView");
+  var list = document.getElementById("listView");
+  document.getElementById("viewToggle").addEventListener("segment:change", function (e) {
+    if (e.detail.value === "list") {
+      grid.classList.add("d-none"); list.classList.remove("d-none");
+    } else {
+      list.classList.add("d-none"); grid.classList.remove("d-none");
+    }
+  });
+
+  /* search */
+  document.getElementById("fileSearch").addEventListener("input", function () {
+    var q = this.value.trim().toLowerCase();
+    document.querySelectorAll("[data-name], .cell-strong").forEach(function (n) {
+      var row = n.closest("[class*='card-base'], tr");
+      if (!row) return;
+      row.style.display = (!q ||
+        (n.getAttribute("data-name") || n.textContent || "")
+          .toLowerCase().includes(q)) ? "" : "none";
+    });
+  });
+
+  /* load real folder counts from API */
+  function loadStats() {
+    fetch("/api/files/stats", { credentials: "same-origin" })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        if (!data) return;
+        var el = document.getElementById("folderCount");
+        if (el) el.textContent = data.total;
+
+        var label = document.getElementById("fileCountLabel");
+        if (label) label.textContent = data.total + " file" + (data.total !== 1 ? "s" : "");
+
+        /* build folder list */
+        var fl = document.getElementById("folderList");
+        if (!fl) return;
+
+        var html = '<button class="list-group-item list-group-item-action '
+          + 'd-flex align-items-center gap-2" style="background:var(--brand-50);'
+          + 'color:var(--brand-700);border:none;border-radius:var(--r-sm);'
+          + 'font-weight:600;font-size:13.5px">'
+          + folderIcon("var(--brand-700)") + 'All files'
+          + '<span class="badge-soft badge-soft--brand ms-auto">'
+          + data.total + '</span></button>';
+
+        if (data.folders && data.folders.length) {
+          data.folders.forEach(function (f) {
+            var name = f.name.replace(/^\//, "") || "root";
+            html += '<button class="list-group-item list-group-item-action '
+              + 'd-flex align-items-center gap-2" style="border:none;font-size:13.5px;'
+              + 'padding:10px 12px;border-radius:var(--r-sm)">'
+              + folderIcon("var(--slate-500)") + name
+              + '<span class="badge-soft badge-soft--neutral ms-auto">'
+              + f.count + '</span></button>';
+          });
+        } else {
+          html += '<div style="padding:12px;font-size:13px;color:var(--text-muted)">'
+            + 'No folders yet.</div>';
+        }
+        fl.innerHTML = html;
+      })
+      .catch(function () {
+        var fl = document.getElementById("folderList");
+        if (fl) fl.innerHTML = '<div style="padding:12px;font-size:13px;'
+          + 'color:var(--text-muted)">Could not load folders.</div>';
+      });
+  }
+
+  function folderIcon(color) {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="' + color + '" stroke-width="2"'
+      + ' stroke-linecap="round" stroke-linejoin="round" width="17" height="17">'
+      + '<path d="M4 7a2 2 0 0 1 2-2h4l2 2h6a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2'
+      + 'H6a2 2 0 0 1-2-2V7z"/></svg>';
+  }
+
+  loadStats();
+
+  /* upload */
+  var inp  = document.getElementById("filePickerInput");
+  var bar  = document.getElementById("uploadBar");
+  var bLbl = document.getElementById("uploadBarLabel");
+  var bPrg = document.getElementById("uploadBarProgress");
+  var bPct = document.getElementById("uploadBarPct");
+
+  function fmtSize(n) {
+    return n >= 1e9 ? (n/1e9).toFixed(2) + " GB"
+         : n >= 1e6 ? (n/1e6).toFixed(1) + " MB"
+         : n >= 1e3 ? Math.round(n/1e3) + " KB"
+         : n + " B";
+  }
+
+  inp.addEventListener("change", function () {
+    var files = Array.from(this.files);
+    this.value = "";
+    if (!files.length) return;
+
+    var total = files.length, failed = 0;
+    bar.style.display = "";
+    bPrg.style.width = "0%";
+    bPct.textContent = "0%";
+
+    function next(i) {
+      if (i >= total) {
+        bPrg.style.width = "100%";
+        bPct.textContent = "100%";
+        bLbl.textContent = failed
+          ? (total - failed) + " uploaded, " + failed + " failed"
+          : total + " file" + (total > 1 ? "s" : "") + " uploaded";
+        setTimeout(function () { bar.style.display = "none"; }, 3000);
+        window.CloudSightToast(
+          failed === total ? "Upload failed" : "Done",
+          failed === total
+            ? "Files could not be uploaded."
+            : (total - failed) + " file" + (total - failed > 1 ? "s" : "")
+              + " saved successfully.",
+          failed === total ? "danger" : "success"
+        );
+        if (window.CloudSightAPI) window.CloudSightAPI.loadFiles();
+        loadStats();
+        return;
+      }
+
+      var f = files[i];
+      var pct = Math.round(i / total * 100);
+      bPrg.style.width = pct + "%";
+      bPct.textContent = pct + "%";
+      bLbl.textContent = "Uploading " + f.name + " (" + fmtSize(f.size) + ")"
+        + (total > 1 ? " — " + (i+1) + "/" + total : "");
+
+      var fd = new FormData();
+      fd.append("file", f);
+
+      fetch("/api/files/upload", {
+        method: "POST", credentials: "same-origin", body: fd
+      })
+      .then(function (r) { if (!r.ok) throw new Error(r.status); next(i + 1); })
+      .catch(function (e) { console.warn("upload failed:", f.name, e); failed++; next(i + 1); });
+    }
+
+    next(0);
+  });
+
+});
+</script>
+{% endblock %}

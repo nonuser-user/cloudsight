@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+{% block title %}Storage Analytics · CloudSight{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="page-head__title">Storage Analytics</h1>
+      <p class="page-head__subtitle">Usage trends and file-type analysis across your cloud storage.</p>
+    </div>
+    <div class="page-head__actions">
+      <div class="segment" id="rangeToggle">
+        <button data-value="6m">6M</button>
+        <button data-value="12m">12M</button>
+        <button class="active" data-value="24m">24M</button>
+      </div>
+      <button class="btn btn-outline-secondary btn-ico"
+              onclick="window.CloudSightToast('Export','CSV export coming soon.','brand')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3v12"/><path d="m8 11 4 4 4-4"/><path d="M4 21h16"/>
+        </svg>
+        Export
+      </button>
+    </div>
+  </div>
+
+  <!-- Summary tiles — filled by api.js from /api/analytics -->
+  <div class="row g-3 row-gap mb-1">
+    <div class="col-6 col-xl-3">
+      <div class="metric-tile">
+        <div class="metric-tile__label">Total used</div>
+        <div class="metric-tile__value" id="at-used">—</div>
+        <div class="metric-tile__sub" id="at-used-sub">Loading…</div>
+      </div>
+    </div>
+    <div class="col-6 col-xl-3">
+      <div class="metric-tile">
+        <div class="metric-tile__label">Avg monthly growth</div>
+        <div class="metric-tile__value" id="at-growth">—</div>
+        <div class="metric-tile__sub" id="at-growth-sub">Over available history</div>
+      </div>
+    </div>
+    <div class="col-6 col-xl-3">
+      <div class="metric-tile">
+        <div class="metric-tile__label">Largest type</div>
+        <div class="metric-tile__value" id="at-largest-type">—</div>
+        <div class="metric-tile__sub" id="at-largest-sub">—</div>
+      </div>
+    </div>
+    <div class="col-6 col-xl-3">
+      <div class="metric-tile">
+        <div class="metric-tile__label">File count</div>
+        <div class="metric-tile__value" id="at-files">—</div>
+        <div class="metric-tile__sub">Total files stored</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Type breakdown + top directories -->
+  <div class="row g-3 g-xxl-4 row-gap mt-1">
+    <div class="col-12 col-lg-6 col-xxl-4">
+      <div class="card h-100">
+        <div class="card__head">
+          <div class="card__title-row">
+            <span class="card__title-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9"/><path d="M21 3v6h-6"/></svg></span>
+            <span class="card__title">Storage by File Type</span>
+          </div>
+        </div>
+        <div class="card__body">
+          <div id="usageByTypeChart" class="chart-box chart-box--md" data-chart></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-6 col-xxl-4">
+      <div class="card h-100">
+        <div class="card__head">
+          <div class="card__title-row">
+            <span class="card__title-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7a2 2 0 0 1 2-2h4l2 2h6a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7z"/></svg></span>
+            <span class="card__title">Top Directories</span>
+          </div>
+        </div>
+        <div class="card__body">
+          <div id="directoryChart" class="chart-box chart-box--md" data-chart></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-xxl-4">
+      <div class="card h-100">
+        <div class="card__head">
+          <div class="card__title-row">
+            <span class="card__title-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18"/></svg></span>
+            <span class="card__title">Type Share</span>
+          </div>
+        </div>
+        <div class="card__body">
+          <div id="typeDonutChart" class="chart-box" style="height:220px" data-chart></div>
+          <hr class="divider my-2">
+          <div data-type-legend></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- File-type distribution over time -->
+  <div class="row g-3 g-xxl-4 row-gap mt-1">
+    <div class="col-12">
+      <div class="card">
+        <div class="card__head">
+          <div class="card__title-row">
+            <span class="card__title-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l3-4 3 3 4-6"/></svg></span>
+            <span class="card__title">File-type Distribution Over Time</span>
+          </div>
+          <span class="badge-soft badge-soft--neutral">Stacked · GB</span>
+        </div>
+        <div class="card__body">
+          <div id="typeGrowthChart" class="chart-box chart-box--lg" data-chart></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Type analysis combo + table -->
+  <div class="row g-3 g-xxl-4 row-gap mt-1">
+    <div class="col-12 col-xxl-7">
+      <div class="card h-100">
+        <div class="card__head">
+          <div class="card__title-row">
+            <span class="card__title-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 11l2 4 3-7 3 5 2-3"/></svg></span>
+            <span class="card__title">File-type Analysis</span>
+          </div>
+          <div class="d-flex gap-3" style="font-size:12px;color:var(--text-muted)">
+            <span><span class="dot-status" style="background:var(--brand-500)"></span> File count</span>
+            <span><span class="dot-status" style="background:var(--amber)"></span> Avg size</span>
+          </div>
+        </div>
+        <div class="card__body">
+          <div id="typeComboChart" class="chart-box chart-box--md" data-chart></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-xxl-5">
+      <div class="card h-100">
+        <div class="card__head">
+          <div class="card__title-row">
+            <span class="card__title-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></span>
+            <span class="card__title">Detailed Breakdown</span>
+          </div>
+        </div>
+        <div class="card__body card__body--flush">
+          <div class="table-responsive">
+            <table class="tbl">
+              <thead>
+                <tr><th>Type</th><th>Files</th><th>Avg size</th><th>Share</th></tr>
+              </thead>
+              <tbody data-type-analysis></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      requestAnimationFrame(function () {
+        if (window.CloudSightCharts) {
+          CloudSightCharts.usageByTypeBars("usageByTypeChart", { height: 300 });
+          CloudSightCharts.directoryBars("directoryChart", { height: 300 });
+          CloudSightCharts.storageDonut("typeDonutChart", { centerText: "372 GB", centerSub: "total used" });
+          CloudSightCharts.typeDistributionStacked("typeGrowthChart", { height: 360 });
+          CloudSightCharts.typeAnalysisCombo("typeComboChart", { height: 320 });
+        }
+      });
+      document.getElementById("rangeToggle").addEventListener("segment:change", function (e) {
+        window.CloudSightToast("Range changed", "Showing " + e.detail.value.toUpperCase() + " of sample data (demo).", "brand");
+      });
+    });
+  </script>
+{% endblock %}

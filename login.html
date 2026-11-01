@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign in · CloudSight</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/style.css') }}?v=2" rel="stylesheet">
+</head>
+<body>
+  <div class="auth">
+    <!-- Hero side -->
+    <section class="auth__hero">
+      <div class="auth__hero-brand">
+        <span class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 12l9 4 9-4"/><path d="M3 17l9 4 9-4"/></svg></span>
+        <span class="name">CloudSight</span>
+      </div>
+      <div class="auth__hero-body">
+        <h1 class="auth__hero-title">Predictive cloud storage analytics, made clear.</h1>
+        <p class="auth__hero-text">Monitor storage usage and forecast future needs with Linear Regression — all in one premium dashboard built for your BCA project.</p>
+        <div class="auth__hero-features">
+          <div class="auth__feature"><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span> Real-time storage usage &amp; growth charts</div>
+          <div class="auth__feature"><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span> ML-based forecasting with scikit-learn (R²=0.993)</div>
+          <div class="auth__feature"><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span> File management backed by Cloudflare R2</div>
+        </div>
+      </div>
+      <div class="auth__hero-foot">© 2026 CloudSight · BCA Integrated Project</div>
+    </section>
+
+    <!-- Form side -->
+    <section class="auth__panel">
+      <div class="auth__card">
+        {% if db_live %}
+          <span class="badge-soft badge-soft--success mb-3"><span class="dot-status" style="background:var(--success)"></span> Live · MySQL connected</span>
+        {% else %}
+          <span class="badge-soft badge-soft--warning mb-3"><span class="dot-status" style="background:var(--warning)"></span> Demo mode · sample data</span>
+        {% endif %}
+
+        <h2 class="auth__head-title">Welcome back</h2>
+        <p class="auth__head-sub">Sign in to your CloudSight account to continue.</p>
+
+        {% if error %}
+          <div class="alert alert-danger d-flex align-items-center gap-2 mt-3 py-2" style="font-size:13.5px;border-radius:var(--r-sm)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+            {{ error }}
+          </div>
+        {% endif %}
+
+        <form class="mt-4" id="loginForm" method="POST" action="{{ url_for('login') }}" novalidate>
+          <div class="mb-3">
+            <label class="form-label" for="email">Email address <span class="req">*</span></label>
+            <input type="email" class="form-control" id="email" name="email"
+                   placeholder="you@university.edu" value="aarav.mehta@university.edu" required
+                   autocomplete="email">
+          </div>
+          <div class="mb-2">
+            <label class="form-label" for="password">Password <span class="req">*</span></label>
+            <div class="password-wrap">
+              <input type="password" class="form-control" id="password" name="password"
+                     placeholder="••••••••" value="demo1234" required autocomplete="current-password">
+              <button type="button" class="toggle-pw" data-toggle="password" aria-label="Show password">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="d-flex align-items-center justify-content-between mt-2 mb-3">
+            <label class="d-flex align-items-center gap-2" style="font-size:13px;color:var(--text-muted);cursor:pointer">
+              <input type="checkbox" name="remember" class="form-check-input" checked style="accent-color:var(--brand-600)"> Remember me
+            </label>
+            <a href="#" style="font-size:13px" onclick="return false">Forgot password?</a>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100 btn-lg btn-ico justify-content-center" id="loginSubmit">
+            <span class="btn-label">Sign in</span>
+            <span class="spinner-soft d-none" id="loginSpinner"></span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </button>
+
+          <div class="auth__divider my-4">or continue with</div>
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-outline-secondary w-100 btn-ico justify-content-center">
+              <svg viewBox="0 0 24 24" width="17" height="17"><path fill="#4285F4" d="M22.5 12.2c0-.7-.1-1.4-.2-2H12v3.9h5.9a5 5 0 0 1-2.2 3.3v2.8h3.6c2.1-2 3.2-4.8 3.2-8z"/><path fill="#34A853" d="M12 23c2.9 0 5.3-1 7.1-2.6l-3.6-2.8c-1 .7-2.2 1-3.5 1-2.7 0-5-1.8-5.8-4.2H2.5v2.9A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M6.2 14.4a6.6 6.6 0 0 1 0-4.2V7.3H2.5a11 11 0 0 0 0 10.9l3.7-2.8z"/><path fill="#EA4335" d="M12 4.7c1.6 0 3 .5 4.1 1.6l3.1-3.1A11 11 0 0 0 2.5 7.3l3.7 2.9C7 6.5 9.3 4.7 12 4.7z"/></svg>
+              Google
+            </button>
+            <button type="button" class="btn btn-outline-secondary w-100 btn-ico justify-content-center">
+              <svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor"><path d="M16.4 1.5c0 1-.4 1.9-1 2.5-.7.7-1.7 1.2-2.7 1.1-.1-1 .4-2 1-2.6.7-.7 1.8-1.1 2.7-1zm2.9 17.4c-.8 1.9-1.2 2.8-2.3 4.5-1.5 2.2-3.6 5-6.2 5-1.6 0-2.1-1-4-1-1.9 0-2.4 1-4 1-2.6 0-4.6-2.5-6.1-4.7C-5 19.9-5.3 14.6-3 11.9c1.1-1.3 2.7-2.1 4.2-2.1s2.5.9 3.8.9c1.2 0 2-.9 3.8-.9 1.4 0 2.9.8 3.9 2.1-3.4 1.9-2.9 6.7 1.6 8z"/></svg>
+              Apple
+            </button>
+          </div>
+
+          <p class="auth__switch text-center mt-4">Don't have an account? <a href="{{ url_for('register') }}">Create one</a></p>
+        </form>
+      </div>
+    </section>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="{{ url_for('static', filename='js/main.js') }}?v=2"></script>
+  <script>
+    document.getElementById("loginForm").addEventListener("submit", function () {
+      var btn = document.getElementById("loginSubmit");
+      document.getElementById("loginSpinner").classList.remove("d-none");
+      btn.querySelector(".btn-label").textContent = "Signing in…";
+      btn.disabled = true;
+    });
+  </script>
+</body>
+</html>

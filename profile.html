@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+{% block title %}Profile &amp; Settings · CloudSight{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="page-head__title">Profile &amp; Settings</h1>
+      <p class="page-head__subtitle">Manage your account, security and preferences.</p>
+    </div>
+    <div class="page-head__actions">
+      <button class="btn btn-primary btn-ico" id="saveSettings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+        Save changes
+      </button>
+    </div>
+  </div>
+
+  <div class="row g-3 g-xxl-4 row-gap">
+    <!-- Profile summary -->
+    <div class="col-12 col-lg-4 col-xxl-3">
+      <div class="card h-100 text-center">
+        <div class="card__body">
+          <span class="avatar xl mx-auto mb-3">{{ sample_user.initials }}</span>
+          <div style="font-size:18px;font-weight:700;color:var(--text-strong)">{{ sample_user.name }}</div>
+          <div class="text-muted-2" style="font-size:13px">Research Scholar · BCA</div>
+          <span class="badge-soft badge-soft--brand mt-2">{{ sample_user.plan }}</span>
+
+          <hr class="divider my-3">
+          <div class="text-start">
+            <div class="d-flex justify-content-between py-2"><span class="text-muted-2" style="font-size:13px"><i class="bi bi-envelope me-2"></i>Email</span><span style="font-size:13px">{{ sample_user.email }}</span></div>
+            <div class="d-flex justify-content-between py-2"><span class="text-muted-2" style="font-size:13px"><i class="bi bi-telephone me-2"></i>Phone</span><span style="font-size:13px">+91 98765 43210</span></div>
+            <div class="d-flex justify-content-between py-2"><span class="text-muted-2" style="font-size:13px"><i class="bi bi-person-badge me-2"></i>Student ID</span><span style="font-size:13px">BCA-2023-1042</span></div>
+            <div class="d-flex justify-content-between py-2"><span class="text-muted-2" style="font-size:13px"><i class="bi bi-calendar3 me-2"></i>Member since</span><span style="font-size:13px">Aug 2024</span></div>
+          </div>
+          <hr class="divider my-3">
+          <div class="text-start">
+            <div class="section-title mb-2">Storage usage</div>
+            <div data-storage-bar></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings tabs -->
+    <div class="col-12 col-lg-8 col-xxl-9">
+      <div class="card h-100">
+        <div class="card__head pb-0">
+          <div class="tabbar" id="settingsTabs" style="margin-bottom:0">
+            <button class="tabbar__btn active" data-value="profile">Profile</button>
+            <button class="tabbar__btn" data-value="security">Security</button>
+            <button class="tabbar__btn" data-value="notifications">Notifications</button>
+            <button class="tabbar__btn" data-value="preferences">Preferences</button>
+          </div>
+        </div>
+        <div class="card__body">
+          <!-- Profile tab -->
+          <div class="tab-panel" data-panel="profile">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Full name</label>
+                <input class="form-control" value="{{ sample_user.name }}">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Email</label>
+                <input class="form-control" value="{{ sample_user.email }}">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Phone</label>
+                <input class="form-control" value="+91 98765 43210">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Institution</label>
+                <input class="form-control" value="University Dept. of Computer Applications">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Student ID</label>
+                <input class="form-control" value="BCA-2023-1042">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Role</label>
+                <select class="form-select"><option>Research Scholar · BCA</option><option>Student</option><option>Faculty</option></select>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Bio</label>
+                <textarea class="form-control" rows="3">BCA student researching predictive analytics for cloud storage. Currently building CloudSight as an integrated project.</textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Security tab -->
+          <div class="tab-panel d-none" data-panel="security">
+            <div class="card-base p-3 mb-3">
+              <div class="row g-3">
+                <div class="col-md-6"><label class="form-label">Current password</label><input type="password" class="form-control" value="demo1234"></div>
+                <div class="col-md-6"><label class="form-label">New password</label><input type="password" class="form-control" placeholder="Enter new password"></div>
+                <div class="col-md-6"><label class="form-label">Confirm new password</label><input type="password" class="form-control" placeholder="Re-enter password"></div>
+              </div>
+              <button class="btn btn-soft btn-ico mt-3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg> Update password</button>
+            </div>
+            <div class="setting-row">
+              <div><div class="setting-row__title">Two-factor authentication</div><div class="setting-row__desc">Require a code from your authenticator app on sign-in.</div></div>
+              <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+            </div>
+            <div class="setting-row">
+              <div><div class="setting-row__title">Login alerts</div><div class="setting-row__desc">Email me when there's a sign-in from a new device.</div></div>
+              <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+            </div>
+            <div class="setting-row">
+              <div><div class="setting-row__title">Session timeout</div><div class="setting-row__desc">Automatically sign out after inactivity.</div></div>
+              <select class="form-select" style="width:auto"><option>30 minutes</option><option selected>1 hour</option><option>4 hours</option></select>
+            </div>
+          </div>
+
+          <!-- Notifications tab -->
+          <div class="tab-panel d-none" data-panel="notifications">
+            <div class="setting-row">
+              <div><div class="setting-row__title">Storage alerts</div><div class="setting-row__desc">Notify me when storage crosses 70% and 90%.</div></div>
+              <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+            </div>
+            <div class="setting-row">
+              <div><div class="setting-row__title">Forecast ready</div><div class="setting-row__desc">Notify me when a new ML prediction is available.</div></div>
+              <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+            </div>
+            <div class="setting-row">
+              <div><div class="setting-row__title">Upload completion</div><div class="setting-row__desc">Notify me when large file uploads finish.</div></div>
+              <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+            </div>
+            <div class="setting-row">
+              <div><div class="setting-row__title">Weekly digest</div><div class="setting-row__desc">A weekly email summary of storage and activity.</div></div>
+              <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+            </div>
+            <div class="setting-row">
+              <div><div class="setting-row__title">Product updates</div><div class="setting-row__desc">News about new CloudSight features.</div></div>
+              <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+            </div>
+          </div>
+
+          <!-- Preferences tab -->
+          <div class="tab-panel d-none" data-panel="preferences">
+            <div class="row g-3 mb-3">
+              <div class="col-md-6"><label class="form-label">Theme</label><select class="form-select"><option>Light (default)</option><option>System</option><option>Dark</option></select></div>
+              <div class="col-md-6"><label class="form-label">Language</label><select class="form-select"><option>English</option><option>हिन्दी</option><option>Español</option></select></div>
+              <div class="col-md-6"><label class="form-label">Timezone</label><select class="form-select"><option>Asia/Kolkata (IST)</option><option>UTC</option><option>America/New_York</option></select></div>
+              <div class="col-md-6"><label class="form-label">Default file view</label><select class="form-select"><option>Grid</option><option>List</option></select></div>
+            </div>
+            <div class="setting-row">
+              <div><div class="setting-row__title">Auto-backup</div><div class="setting-row__desc">Automatically back up new files to the uploads folder.</div></div>
+              <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+            </div>
+            <div class="setting-row">
+              <div><div class="setting-row__title">Compress uploads</div><div class="setting-row__desc">Compress images and videos before storing.</div></div>
+              <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+            </div>
+            <div class="setting-row">
+              <div><div class="setting-row__title">Animated charts</div><div class="setting-row__desc">Enable transitions on Plotly charts.</div></div>
+              <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+            </div>
+            <hr class="divider">
+            <div class="setting-row">
+              <div><div class="setting-row__title" style="color:var(--danger)">Delete account</div><div class="setting-row__desc">Permanently remove your account and all sample data.</div></div>
+              <button class="btn btn-danger-soft">Delete</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var tabs = document.getElementById("settingsTabs");
+      tabs.addEventListener("tab:change", function (e) {
+        document.querySelectorAll(".tab-panel").forEach(function (p) {
+          p.classList.toggle("d-none", p.getAttribute("data-panel") !== e.detail.value);
+        });
+      });
+      document.getElementById("saveSettings").addEventListener("click", function () {
+        CloudSightToast("Settings saved", "Your preferences have been updated (demo).", "success");
+      });
+    });
+  </script>
+{% endblock %}

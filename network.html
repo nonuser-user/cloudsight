@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+{% block title %}Network Simulation · CloudSight{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        <h1 class="page-head__title">Network Simulation</h1>
+        <span class="sample-flag">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+          Sample data
+        </span>
+      </div>
+      <p class="page-head__subtitle">Network information and transfer simulation for local file storage.</p>
+    </div>
+    <div class="page-head__actions">
+      <button class="btn btn-outline-secondary btn-ico" id="simBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 3 14 9-14 9z"/></svg>
+        Run simulation
+      </button>
+    </div>
+  </div>
+
+  <!-- Network status banner -->
+  <div class="card mb-3" style="border-color:var(--success-soft)" data-network-status>
+    <div class="card__body d-flex align-items-center gap-3 flex-wrap">
+      <span class="file-ico file-ico--success" style="width:42px;height:42px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5a14 14 0 0 1 14 0"/><path d="M2 9a18 18 0 0 1 20 0"/><path d="M8 16a8 8 0 0 1 8 0"/><circle cx="12" cy="20" r="1.2"/></svg></span>
+      <div class="flex-grow-1">
+        <div style="font-weight:600;color:var(--text-strong)">All systems operational</div>
+        <div class="text-muted-2" style="font-size:13px">Local filesystem storage · MySQL {{ 'connected' if db_live else 'demo mode' }} · Files stored in <code>uploads/</code></div>
+      </div>
+      <span class="badge-soft badge-soft--success"><span class="dot-status" style="background:var(--success)"></span> <span data-status-label>Operational</span></span>
+    </div>
+  </div>
+
+  <!-- Network metrics -->
+  <div class="row g-3 row-gap" data-network-metrics></div>
+
+  <!-- Throughput chart + connection details -->
+  <div class="row g-3 g-xxl-4 row-gap mt-1">
+    <div class="col-12 col-xxl-8">
+      <div class="card h-100">
+        <div class="card__head">
+          <div class="card__title-row">
+            <span class="card__title-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 14 3-4 3 2 4-7"/></svg></span>
+            <span class="card__title">Live Throughput — 60s</span>
+          </div>
+          <div class="d-flex gap-3" style="font-size:12px;color:var(--text-muted)">
+            <span><span class="dot-status" style="background:var(--brand-500)"></span> Download</span>
+            <span><span class="dot-status" style="background:var(--success)"></span> Upload</span>
+          </div>
+        </div>
+        <div class="card__body">
+          <div id="throughputChart" class="chart-box chart-box--md" data-chart></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-xxl-4">
+      <div class="card h-100">
+        <div class="card__head">
+          <div class="card__title-row">
+            <span class="card__title-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5a14 14 0 0 1 14 0"/><path d="M2 9a18 18 0 0 1 20 0"/><path d="M8 16a8 8 0 0 1 8 0"/><circle cx="12" cy="20" r="1.2"/></svg></span>
+            <span class="card__title">Connection Details</span>
+          </div>
+        </div>
+        <div class="card__body">
+          <div class="d-flex justify-content-between py-2 border-bottom" style="border-color:var(--border)"><span class="text-muted-2" style="font-size:13px">Storage type</span><span style="font-weight:600;font-size:13px">Local filesystem</span></div>
+          <div class="d-flex justify-content-between py-2 border-bottom" style="border-color:var(--border)"><span class="text-muted-2" style="font-size:13px">Upload path</span><span style="font-weight:600;font-size:13px"><code>uploads/</code></span></div>
+          <div class="d-flex justify-content-between py-2 border-bottom" style="border-color:var(--border)"><span class="text-muted-2" style="font-size:13px">Database</span><span style="font-weight:600;font-size:13px">MySQL · port 3307</span></div>
+          <div class="d-flex justify-content-between py-2 border-bottom" style="border-color:var(--border)"><span class="text-muted-2" style="font-size:13px">Protocol</span><span style="font-weight:600;font-size:13px">HTTP (dev server)</span></div>
+          <div class="d-flex justify-content-between py-2 border-bottom" style="border-color:var(--border)"><span class="text-muted-2" style="font-size:13px">Auth</span><span style="font-weight:600;font-size:13px">Flask-Login · bcrypt</span></div>
+          <div class="d-flex justify-content-between py-2"><span class="text-muted-2" style="font-size:13px">ML model</span><span style="font-weight:600;font-size:13px">sklearn · LinearRegression</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Transfer simulation -->
+  <div class="row g-3 g-xxl-4 row-gap mt-1">
+    <div class="col-12 col-xxl-7">
+      <div class="card h-100">
+        <div class="card__head">
+          <div class="card__title-row">
+            <span class="card__title-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v16"/><path d="m6 10 6-6 6 6M6 14l6 6 6-6"/></svg></span>
+            <span class="card__title">Transfer Time Estimator</span>
+          </div>
+        </div>
+        <div class="card__body">
+          <div class="row g-3 align-items-end">
+            <div class="col-12 col-md-7">
+              <label class="form-label">File size (MB)</label>
+              <input type="number" class="form-control" id="sizeInput" value="1024" min="1">
+            </div>
+            <div class="col-12 col-md-5">
+              <label class="form-label">Speed (Mbps)</label>
+              <input type="number" class="form-control" id="speedInput" value="420" min="1">
+            </div>
+          </div>
+          <div class="d-flex flex-wrap gap-2 mt-3">
+            <button class="btn btn-soft btn-sm" data-size="10">10 MB</button>
+            <button class="btn btn-soft btn-sm" data-size="250">250 MB</button>
+            <button class="btn btn-soft btn-sm" data-size="4096">4 GB</button>
+            <button class="btn btn-soft btn-sm" data-size="25600">25 GB</button>
+          </div>
+          <hr class="divider my-3">
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <div class="text-muted-2" style="font-size:13px">Estimated transfer time</div>
+              <div id="estTime" style="font-size:28px;font-weight:700;color:var(--brand-600);letter-spacing:-0.02em">—</div>
+            </div>
+            <div class="text-end">
+              <div class="text-muted-2" style="font-size:13px">Effective throughput</div>
+              <div id="estSpeed" style="font-size:18px;font-weight:700;color:var(--text-strong)">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-xxl-5">
+      <div class="card h-100">
+        <div class="card__head">
+          <div class="card__title-row">
+            <span class="card__title-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 12h10"/><path d="M7 8h10M7 16h6"/></svg></span>
+            <span class="card__title">Preset Estimates</span>
+          </div>
+        </div>
+        <div class="card__body card__body--flush">
+          <div class="table-responsive">
+            <table class="tbl">
+              <thead><tr><th>File type</th><th>Size</th><th class="text-end">Upload time</th></tr></thead>
+              <tbody id="presetRows"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      requestAnimationFrame(function () {
+        if (window.CloudSightCharts) CloudSightCharts.throughput("throughputChart", { height: 320 });
+      });
+
+      // transfer estimator
+      function fmtSpeed(mbps){ return (mbps/8).toFixed(1) + " MB/s"; }
+      function update(){
+        var mb = parseFloat(document.getElementById("sizeInput").value) || 0;
+        var mbps = parseFloat(document.getElementById("speedInput").value) || 1;
+        document.getElementById("estTime").textContent = CloudSightRender.calcTransferTime(mb, mbps);
+        document.getElementById("estSpeed").textContent = fmtSpeed(mbps);
+      }
+      ["sizeInput","speedInput"].forEach(function(id){ document.getElementById(id).addEventListener("input", update); });
+      document.querySelectorAll("[data-size]").forEach(function(b){
+        b.addEventListener("click", function(){ document.getElementById("sizeInput").value = b.getAttribute("data-size"); update(); });
+      });
+      update();
+
+      // preset rows
+      var presets = CloudSightData.transferSim.presets;
+      var up = CloudSightData.networkInfo.uploadMbps, dl = CloudSightData.networkInfo.downloadMbps;
+      document.getElementById("presetRows").innerHTML = presets.map(function(p){
+        return "<tr><td class='cell-strong'>"+p.label.replace(/ \(.*/,"")+"</td><td class='cell-muted'>"+p.label.match(/\((.*)\)/)[1]+"</td><td class='text-end'><span class='badge-soft badge-soft--brand'>"+CloudSightRender.calcTransferTime(p.mb, up)+"</span></td></tr>";
+      }).join("");
+
+      document.getElementById("simBtn").addEventListener("click", function(){
+        var b = this; b.disabled = true; b.innerHTML = '<span class="spinner-soft"></span> Running…';
+        setTimeout(function(){ b.disabled=false; b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 3 14 9-14 9z"/></svg> Run simulation'; CloudSightToast("Simulation done","Throughput sampled over 60s (demo).","success"); }, 1100);
+      });
+    });
+  </script>
+{% endblock %}
