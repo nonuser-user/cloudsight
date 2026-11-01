@@ -1,7 +1,6 @@
 /* CloudSight — Plotly charts with shared theme. */
 (function () {
   "use strict";
-
   const P = (window.CloudSightData && window.CloudSightData.palette) || {
     brand: "#6366f1", brandDark: "#4f46e5", brandLight: "#c7d2fe",
     sky: "#0ea5e9", emerald: "#10b981", amber: "#f59e0b",
