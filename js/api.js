@@ -26,7 +26,6 @@
     document.querySelectorAll(".sample-flag").forEach(function (el) { el.remove(); });
   }
 
-  // ── Summary (storage bar + plan info) — runs on every page ──────────
   async function loadSummary() {
     try {
       const s = await get("/summary");
