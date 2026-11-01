@@ -1,0 +1,14 @@
+# Predictive Cloud Storage Analytics System — dependencies
+# ---------------------------------------------------------------------------
+# Phase 1 (frontend review) only needs Flask. Phase 2 (backend) adds auth,
+# MySQL, Cloudflare R2, and the scikit-learn Linear Regression predictor.
+
+Flask==3.0.3
+Flask-Login==0.6.3          # session / auth management
+PyMySQL==1.1.0              # MySQL connector (pure-Python, no system libs needed)
+bcrypt==4.1.2               # password hashing
+python-dotenv==1.0.1        # load .env secrets at startup
+boto3==1.34.69              # Cloudflare R2 (S3-compatible API via botocore)
+scikit-learn==1.4.1.post1   # Linear Regression forecasting
+numpy==1.26.4               # numerical support for sklearn
+pandas==2.2.1              # data handling for analytics/prediction
